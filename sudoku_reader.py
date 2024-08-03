@@ -1,6 +1,6 @@
 import cv2
 import matplotlib.pyplot as plt
-import os
+import tensorflow as tf
 import numpy as np
 
 ### Helper Functions ###
@@ -54,7 +54,7 @@ def splitcells(img):
 
 
 if __name__ == "__main__":
-    sudoku_a = cv2.imread("Sudoku/9.png")
+    sudoku_a = cv2.imread("Sudoku/10.png")
     sudoku_a = cv2.resize(sudoku_a, (450,450))
 
     threshold = preprocess(sudoku_a)
@@ -90,7 +90,7 @@ if __name__ == "__main__":
 
     # Change this margin value to control how inside the cell should
     # be cropped
-    margin = 10
+    margin = 5
 
     # Calculate the size of each cell, with margin adjustment
     cell_height = (height // num_rows) - margin
@@ -102,6 +102,10 @@ if __name__ == "__main__":
 
     # Create a list to store cell images
     cells = []
+
+    print("Loading model...")
+    model = tf.keras.models.load_model('mnist_digit_recognition_model.keras')
+
 
     # Extract each cell with margin adjustment
     for row in range(num_rows):
@@ -119,14 +123,26 @@ if __name__ == "__main__":
 
             # Append the cell to the list
             cells.append(resized_cell)
-
-            print(resized_cell.shape)   # Gives (40,40)
             
             # Optionally save the cell
             # cv2.imwrite(f'cell_{row}_{col}.jpg', cell)
+
+            # Normalize the image
+            normalized_cell = cv2.normalize(resized_cell, None, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_8UC1)
+
+            # Add batch dimension
+            # image_batch = np.expand_dims(normalized_cell, axis=(0, -1))
+            image_batch = normalized_cell.reshape((1, 28, 28, 1))  # Add batch dimension
 
             # Optionally, display the cell using matplotlib (for visualization)
             plt.imshow(cv2.cvtColor(resized_cell, cv2.COLOR_BGR2RGB))
             plt.title(f'Cell {row}_{col}')
             plt.axis('off')
             plt.show()
+
+            # Predict the digit
+            predictions = model.predict(image_batch)
+            predicted_digit = np.argmax(predictions[0])
+
+            print(predictions)
+            print(f'Predicted digit: {predicted_digit}')

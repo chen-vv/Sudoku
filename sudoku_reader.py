@@ -54,28 +54,16 @@ def splitcells(img):
 
 
 if __name__ == "__main__":
-    sudoku_a = cv2.imread("Sudoku/10.png")
-    plt.figure()
-    plt.imshow(sudoku_a)
-    plt.show() 
-
-    #Preprocessing image to be read
+    sudoku_a = cv2.imread("Sudoku/9.png")
     sudoku_a = cv2.resize(sudoku_a, (450,450))
-    threshold = preprocess(sudoku_a)
 
-    plt.figure()
-    plt.imshow(threshold)
-    plt.show()
+    threshold = preprocess(sudoku_a)
 
     # Finding the outline of the sudoku puzzle in the image
     contour_1 = sudoku_a.copy()
     contour_2 = sudoku_a.copy()
     contour, hierarchy = cv2.findContours(threshold,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
     cv2.drawContours(contour_1, contour,-1,(0,255,0),3)
-
-    plt.figure()
-    plt.imshow(contour_1)
-    plt.show()
 
     black_img = np.zeros((450,450,3), np.uint8)
     biggest, maxArea = main_outline(contour)
@@ -91,3 +79,50 @@ if __name__ == "__main__":
     plt.figure()
     plt.imshow(imagewrap)
     plt.show()
+
+    height, width = imagewrap.shape
+    print(f"Height:{height}")
+    print(f"Width: {width}")
+
+    # Define grid size
+    num_rows = 9
+    num_cols = 9
+
+    # Change this margin value to control how inside the cell should
+    # be cropped
+    margin = 10
+
+    # Calculate the size of each cell, with margin adjustment
+    cell_height = (height // num_rows) - margin
+    cell_width = (width // num_cols) - margin
+
+    # Calculate margin offsets
+    margin_top_left = margin // 2
+    margin_bottom_right = margin - margin_top_left
+
+    # Create a list to store cell images
+    cells = []
+
+    # Extract each cell with margin adjustment
+    for row in range(num_rows):
+        for col in range(num_cols):
+            # Define the bounding box of the cell with margin adjustment
+            start_row = row * (height // num_rows) + margin_top_left
+            end_row = start_row + cell_height
+            start_col = col * (width // num_cols) + margin_top_left
+            end_col = start_col + cell_width
+
+            # Crop the image to get the cell
+            cell = imagewrap[start_row:end_row, start_col:end_col]
+            
+            # Append the cell to the list
+            cells.append(cell)
+            
+            # Optionally save the cell
+            # cv2.imwrite(f'cell_{row}_{col}.jpg', cell)
+
+            # Optionally, display the cell using matplotlib (for visualization)
+            plt.imshow(cv2.cvtColor(cell, cv2.COLOR_BGR2RGB))
+            plt.title(f'Cell {row}_{col}')
+            plt.axis('off')
+            plt.show()

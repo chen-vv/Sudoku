@@ -114,15 +114,19 @@ if __name__ == "__main__":
 
             # Crop the image to get the cell
             cell = imagewrap[start_row:end_row, start_col:end_col]
-            
+
+            resized_cell = cv2.resize(cell, (28,28), interpolation=cv2.INTER_AREA)
+
             # Append the cell to the list
-            cells.append(cell)
+            cells.append(resized_cell)
+
+            print(resized_cell.shape)   # Gives (40,40)
             
             # Optionally save the cell
             # cv2.imwrite(f'cell_{row}_{col}.jpg', cell)
 
             # Optionally, display the cell using matplotlib (for visualization)
-            plt.imshow(cv2.cvtColor(cell, cv2.COLOR_BGR2RGB))
+            plt.imshow(cv2.cvtColor(resized_cell, cv2.COLOR_BGR2RGB))
             plt.title(f'Cell {row}_{col}')
             plt.axis('off')
             plt.show()

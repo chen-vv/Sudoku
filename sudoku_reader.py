@@ -1,6 +1,7 @@
 import cv2
 import matplotlib.pyplot as plt
 import tensorflow as tf
+import keras
 import numpy as np
 
 from test import center_image
@@ -108,6 +109,32 @@ if __name__ == "__main__":
     print("Loading model...")
     model = tf.keras.models.load_model('mnist_digit_recognition_model.keras')
 
+    # Ensure model was loaded correctly
+    (x_train, y_train), (x_test, y_test) = keras.datasets.mnist.load_data()
+    # Scale images to the [0, 1] range
+    x_train = x_train.astype("float32") / 255
+    x_test = x_test.astype("float32") / 255
+    # Make sure images have shape (28, 28, 1)
+    x_train = np.expand_dims(x_train, -1)
+    x_test = np.expand_dims(x_test, -1)
+    print("x_train shape:", x_train.shape)
+    print(x_train.shape[0], "train samples")
+    print(x_test.shape[0], "test samples")
+
+    # convert class vectors to binary class matrices
+    num_classes = 10
+
+    y_train = keras.utils.to_categorical(y_train, num_classes)
+    y_test = keras.utils.to_categorical(y_test, num_classes)
+
+    score = model.evaluate(x_test, y_test, verbose=0)
+    print("Test loss:", score[0])
+    print("Test accuracy:", score[1])
+
+    if score[1] > 0.98:
+        print("Model loaded successfully")
+
+
     # Extract each cell with margin adjustment
     for row in range(num_rows):
         for col in range(num_cols):
@@ -125,9 +152,14 @@ if __name__ == "__main__":
             # Resize the cell to MNIST size
             resized_cell = cv2.resize(cell, (28,28), interpolation=cv2.INTER_AREA)
 
+            resized_cell = resized_cell.astype('float32')
+            resized_cell = resized_cell.reshape(1, 28, 28, 1)
+            resized_cell = 255 - resized_cell
+            resized_cell /= 255
+
             # Normalize the image
-            normalized_cell = cv2.normalize(resized_cell, None, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_8UC1)
-            image_batch = normalized_cell.reshape((1, 28, 28, 1)) 
+            # normalized_cell = cv2.normalize(resized_cell, None, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_8UC1)
+            image_batch = resized_cell.reshape((1, 28, 28, 1)) 
 
             # Optionally, display the cell using matplotlib (for visualization)
             plt.imshow(cv2.cvtColor(resized_cell, cv2.COLOR_BGR2RGB))

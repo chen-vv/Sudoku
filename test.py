@@ -1,10 +1,9 @@
 import cv2
 import numpy as np
 import tensorflow as tf
-import os
 
 def center_image(image):
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    gray = image.copy()
 
     gray = 255 * (gray < 150).astype(np.uint8) # To invert the text to white
     coords = cv2.findNonZero(gray) # Find all non-zero points (text)
@@ -45,26 +44,37 @@ def center_image(image):
 
     return white_bg_img
 
-print("Loading model...")
-model = tf.keras.models.load_model('mnist_digit_recognition_model.keras')
+# print("Loading model...")
+# model = tf.keras.models.load_model('mnist_digit_recognition_model.keras')
 
-images = []
+# images = []
 
-for filename in os.listdir("extracted_cells"):
-    if os.path.isfile(os.path.join("extracted_cells", filename)):
-        images.append(filename)
+# for filename in os.listdir("extracted_cells"):
+#     if os.path.isfile(os.path.join("extracted_cells", filename)):
+#         images.append(filename)
 
-for fname in images:
-    # Load image
-    image = cv2.imread(f'extracted_cells/{fname}')
+# for fname in images:
+#     # Load image
+#     image = cv2.imread(f'extracted_cells/{fname}')
 
-    cv2.imshow("Original", image)
-    cv2.waitKey()
+#     cv2.imshow("Original", image)
+#     cv2.waitKey()
 
-    # Show the result (optional)
-    cv2.imshow('Centered Digit', center_image(image))
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+#     # Show the result (optional)
+#     cv2.imshow('Centered Digit', center_image(image))
+#     cv2.waitKey(0)
+#     cv2.destroyAllWindows()
 
-    # Save the result
-    # cv2.imwrite(f'{filename}.jpg', background)
+#     # Save the result
+#     # cv2.imwrite(f'{filename}.jpg', background)
+
+# images = ["x_train_0.jpg", "x_train_1.jpg", "x_train_2.jpg"]
+# model = tf.keras.models.load_model('mnist_digit_recognition_model.keras')
+
+# for i in images:
+#     img = cv2.imread(i)
+#     image_batch = img.reshape((1, 28, 28, 1)) 
+
+#     predictions = model.predict(image_batch)
+
+#     print(predictions)

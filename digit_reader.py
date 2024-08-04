@@ -1,6 +1,7 @@
 import numpy as np
 import keras
 from keras import layers
+import cv2
 
 # Model / data parameters
 num_classes = 10
@@ -19,6 +20,11 @@ print("x_train shape:", x_train.shape)
 print(x_train.shape[0], "train samples")
 print(x_test.shape[0], "test samples")
 
+for i in range(5):
+    img_to_save = np.uint8(x_train[i] * 255.0)
+    cv2.imshow("", img_to_save)
+    cv2.waitKey(0)
+    cv2.imwrite(f"x_train_{i}.jpg", img_to_save)
 
 # convert class vectors to binary class matrices
 y_train = keras.utils.to_categorical(y_train, num_classes)
